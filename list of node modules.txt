@@ -1,0 +1,13 @@
+npm i --save-dev gulp
+npm i --save-dev browser-sync gulp
+npm i --save-dev del
+npm i --save-dev gulp-file-include
+npm i --save-dev sass gulp-sass
+npm i --save-dev gulp-group-css-media-queries
+npm i --save-dev gulp-clean-css
+npm i --save-dev gulp-rename
+npm i --save-dev gulp-uglify-es
+npm i --save-dev gulp-autoprefixer
+npm i --save-dev gulp-webp-html
+npm i --save-dev gulp-webp
+npm i --save-dev gulp-ttf2woff gulp-ttf2woff2
