@@ -8,14 +8,16 @@ let path = {
     js: project_folder + "/js/",
     img: project_folder + "/img/",
     fonts: project_folder + "/fonts/",
+    fontsAwasome: project_folder + "/fonts/fontawesome-free-5.15.3-web/",
   },
   src: {
-    html: [source_folder + "/*.html", "!" + source_folder + "/_*.html"],
+    html: [source_folder + "/**/*.html", "!" + source_folder + "/**/_*.html"],
     css: source_folder + "/scss/style.scss",
     scss: source_folder + "/scss/**/*.scss",
     js: source_folder + "/js/script.js",
     img: source_folder + "/img/**/*.{jpg,png,svg,gif,ico,webp}",
-    fonts: source_folder + "/fonts/*.ttf",
+    fonts: source_folder + "/fonts/**/*.ttf",
+    fontsAwasome: source_folder + "/fonts/fontawesome-free-5.15.3-web/**/*.*",
   },
   watch: {
     html: source_folder + "/**/*.html",
@@ -25,7 +27,6 @@ let path = {
   },
   clean: "./" + project_folder + "/"
 }
-
 
 let { src, dest } = require('gulp');
 let gulp = require('gulp');
@@ -44,8 +45,7 @@ let webpcss = require("gulp-webp-css");
 var sourcemaps = require('gulp-sourcemaps');
 let ttf2woff = require("gulp-ttf2woff");
 let ttf2woff2 = require("gulp-ttf2woff2");
-
-// let webp = require("gulp-webp");
+// let concat = require('gulp-concat');
 
 function browserSync(params) {
   browsersync.init({
@@ -66,32 +66,26 @@ function html() {
 }
 
 function css() {
-  return src(path.src.css)
-    .pipe(
-      scss({ outputStyle: 'expanded' }).on('error', scss.logError)
-    )
-    .pipe(
-      group_media()
-    )
-    .pipe(
-      autoprefixer({
-        overrideBrowserslist: ["last 5 versions"],
-        cascade: true
-      })
-    )
-    .pipe(webpcss())
-    .pipe(dest(path.build.css))
-    .pipe(clean_css())
-    .pipe(
-      rename({
-        extname: ".min.css"
-      })
-    )
-    .pipe(webpcss())
-    .pipe(dest(path.build.css))
-    .pipe(browsersync.stream())
+  return src(path.src.scss)
+  .pipe(sourcemaps.init())
+  .pipe(scss({ outputStyle: 'compressed' }).on('error', scss.logError))
+  .pipe(rename({ suffix: '.min', prefix: '' }))
+  .pipe(
+    autoprefixer({
+      overrideBrowserslist: ["last 5 versions"],
+      cascade: true
+    })
+  )
+  .pipe(sourcemaps.write('.'))
+  .pipe(dest(path.build.css))
+  .pipe(browsersync.stream())
 }
 
+function cleanCss(){
+  return src(path.build.css)
+  .pipe(clean_css())
+  .pipe(dest(path.build.css))
+}
 
 function js() {
   return src(path.src.js)
@@ -131,12 +125,9 @@ function fonts() {
     .pipe(dest(path.build.fonts))
 }
 
-function map() {
-  return src(path.src.scss)
-  .pipe(sourcemaps.init())
-  .pipe(scss({ outputStyle: 'expanded' }).on('error', scss.logError)  )
-  .pipe(sourcemaps.write('./'))
-  .pipe(dest(path.build.css))
+function fontsAwasome() {
+  return src(path.src.fontsAwasome)
+    .pipe(dest(path.build.fontsAwasome))
 }
 
 function watchFiles(param) {
@@ -150,7 +141,7 @@ function clean(param) {
   return del(path.clean);
 }
 
-let build = gulp.series(clean, gulp.parallel(js, css, html, images, map));
+let build = gulp.series(clean, gulp.parallel(js, html, images, css, fonts, fontsAwasome));
 let watch = gulp.parallel(build, watchFiles, browserSync);
 
 exports.fonts = fonts;
